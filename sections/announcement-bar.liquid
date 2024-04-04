@@ -1,4 +1,17 @@
-<div style="background-color: {{ section.settings.background_color_announcement }}; color:{{ section.settings.text_color_announcement }}" class="w-full py-2 {% if section.settings.checkbox_3_announcement == true %} md:hidden {% endif %}">
+{% comment %} 
+  In this annoucement section I did several change:
+
+  1. I removed all the block section and
+  2. I added the posibility to show and hide annoucement bar for small and large screen with "Show Announcement Bar settings";
+  3. I added the posibility to choose background color and text color
+  4. I added the posibility to chose how to display text on uppercase, capitalize or lowercase
+  5. I added the posibility to Show and Hide Promotianal counter in "Show Promotional Counter" setting. There is the javascript for it below. The Year, month, days,and hours are added dynamicly using liquid settings id such "{{  "now" | date: '%Y' }} {{ section.settings.promotional_text_hours }}", "{{ section.settings.promotional_text_months }}", "{{ section.settings.promotional_text_days }}", and "{{ section.settings.promotional_text_hours }}".
+  6. I added the posibility to add promotional text using liquid "Enter Promotional Text" settings.
+  7. I added the possibility to hide announcement bar on small device below 768px. see the css below
+{% endcomment %}
+
+{% if section.settings.checkbox_announcement %}
+<div id="announcement" style="background-color: {{ section.settings.background_color_announcement }}; color:{{ section.settings.text_color_announcement }}" class="w-full py-2">
   <a href="{{ section.settings.link_announcement }}" class="block min-w-[256px] mx-8 md:flex
     md:items-center
     {% if section.settings.checkbox_2_announcement == false %}
@@ -8,23 +21,65 @@
     {% endif %}
     md:w-[730px] md:mx-auto">
     <div class="">
-      <p class="text-xl font-bold text-center {{ section.settings.text_transform_announcement }}">Bogo Free Dresses, Sets & Jumpsuits</p>
+      <p class="text-xl font-bold text-center {{ section.settings.text_transform_announcement }}">{{ section.settings.text_announcement }}</p>
     </div>
     {% if section.settings.checkbox_2_announcement  %}
     <div class="block mt-3 md:flex md:justify-between md:items-center md:w-[330px] md:mt-0">
-      <p class="text-center block uppercase text-xs">Use code : <span class="bg-white px-2 py-1 rounded-md text-black">{{ section.settings.promotional_text }}</span></p>
-      <p class="text-center block">
-        <span class="font-extrabold text-xl">15</span>h
-        <span class="font-extrabold text-xl">55</span>m
-        <span class="font-extrabold text-xl">15</span>s
+      <p class="text-center block uppercase text-xs">
+        Use code : 
+        <span class="bg-white px-2 py-1 rounded-md text-black">
+          {{ section.settings.promotional_text }}
+        </span>
       </p>
+      <p id="countdown-announcement" class="text-center block font-extrabold"></p>
       <p class="text-center block underline">Shop now</p>
     </div>
     {% endif %}
   </a>
 </div>
 
-{{ section.settings.checkbox_3_announcement }}
+
+{% endif %}
+<style>
+  {%  if section.settings.checkbox_3_announcement == true  %}
+    @media only screen and (width < 768px) {
+      #announcement{
+        display: none;
+      }
+    }
+  {% endif %}
+</style>
+
+<script>
+  // Set the date we're counting down to
+  // let countDownDate = new Date("April 10, 2024 15:37:25").getTime();
+  // let countDownDate = new Date("{{ section.settings.promotional_text_months }} {{ section.settings.promotional_text_days }}, {{  "now" | date: '%Y' }} {{ section.settings.promotional_text_hours }}:00:00").getTime();
+  // let countDownDate = new Date("April 6, {{  "now" | date: '%Y' }}").getTime();
+  let countDownDate = new Date("{{ "now" | date: "%B" }} {{ section.settings.promotional_text_date }}, {{  "now" | date: '%Y' }}").getTime();
+  
+  console.log(countDownDate);
+  //Update the count down every 1 second
+  let x = setInterval(() => {
+    // Get today's date and time
+    let now = new Date().getTime();
+    
+    //Find the distance between now and the count down date
+    let distance = countDownDate - now;
+    //Time calculations for days, hours, minutes and seconds
+    let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // display the result in the element with id="countdown-announcement"
+    document.getElementById("countdown-announcement").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s "
+     
+    // If the count is finished, write some text
+    if(distance < 0){
+      clearInterval(x);
+      document.getElementById("countdown-announcement").innerHTML = "EXPIRED";
+    }
+  }, 1000);
+</script>
 
 {% schema %}
 {
@@ -90,15 +145,22 @@
       "default": false
     },
     {
-      "type": "checkbox",
-      "id": "checkbox_3_announcement",
-      "label": "Hide on Mobile",
-      "default": true
+      "type": "text",
+      "id": "promotional_text_date",
+      "label": "Choose the date you want to count down to?",
+      "placeholder": "2",
+      "info": "Add date of the currenct month. Ex: April 5, 2024. The month and the year are already set"
     },
     {
       "type": "text",
       "id": "promotional_text",
       "label": "Enter Promotional Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "checkbox_3_announcement",
+      "label": "Hide Announcement Bar on Mobile",
+      "default": true
     }
   ],
   "presets": [
