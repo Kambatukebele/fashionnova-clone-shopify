@@ -11,9 +11,9 @@
         "background_color_announcement": "#000000",
         "text_color_announcement": "#ffffff",
         "text_transform_announcement": "uppercase",
-        "checkbox_2_announcement": false,
+        "checkbox_2_announcement": true,
         "checkbox_3_announcement": false,
-        "promotional_text": ""
+        "promotional_text": "kamba"
       }
     },
     "header": {
